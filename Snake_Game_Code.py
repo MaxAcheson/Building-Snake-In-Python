@@ -5,7 +5,6 @@ from collections import namedtuple
 
 pygame.init()
 font = pygame.font.Font('Retro Gaming.ttf', 15)
-#font = pygame.font.SysFont('arial', 25)
 
 class Direction(Enum):
     RIGHT = 1
