@@ -18,8 +18,8 @@ Point = namedtuple('Point', 'x, y')
 # Color selection using RGP configuration
 WHITE = (255, 255, 255)
 RED = (200,0,0)
-BLUE1 = (0, 0, 255)
-BLUE2 = (0, 120, 255)
+BLUEOUT = (0, 0, 255)
+BLUEIN = (0, 120, 255)
 BLACK = (0,0,0)
 
 BLOCK_SIZE = 20
@@ -107,8 +107,8 @@ class SnakeGame:
         self.display.fill(BLACK)
         # Define snake coloration, with lighter blue (BLUE2) inside the snake cubes
         for pt in self.snake:
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUE2, pygame.Rect(pt.x+4, pt.y+4, 12, 12))
+            pygame.draw.rect(self.display, BLUEOUT, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
+            pygame.draw.rect(self.display, BLUEIN, pygame.Rect(pt.x+4, pt.y+4, 12, 12))
         #Define snack color to be solid red    
         pygame.draw.rect(self.display, RED, pygame.Rect(self.snack.x, self.snack.y, BLOCK_SIZE, BLOCK_SIZE))
         
