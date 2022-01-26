@@ -4,9 +4,9 @@ from enum import Enum
 from collections import namedtuple
 
 pygame.init()
-score_font = pygame.font.Font('Retro Gaming.ttf', 25)
+font = pygame.font.Font('Retro Gaming.ttf', 15)
+#font = pygame.font.SysFont('arial', 25)
 
-# Use all caps to create constant variables that cannot be altered in the future
 class Direction(Enum):
     RIGHT = 1
     LEFT = 2
@@ -15,24 +15,25 @@ class Direction(Enum):
     
 Point = namedtuple('Point', 'x, y')
 
-# Color selection using RGP configuration
+# Color selection for All shapes, window, and font
 WHITE = (255, 255, 255)
-RED = (200,0,0)
-BLUEOUT = (0, 0, 255)
-BLUEIN = (0, 120, 255)
+RED = (200, 0, 0)
+BLUE1 = (0, 150, 255)
+GREEN = (0, 255, 150)
 BLACK = (0,0,0)
 
-BLOCK_SIZE = 20
-SPEED = 12
+# Block size and snake speed configuration
+BS = 20
+SPEED = 15
 
 class SnakeGame:
     
-    def __init__(self, w=700, h=500):
+    def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
         # init display
         self.display = pygame.display.set_mode((self.w, self.h))
-        pygame.display.set_caption('Snake in Python!')
+        pygame.display.set_caption('Play Snake in Python!')
         self.clock = pygame.time.Clock()
         
         # init game state
@@ -40,22 +41,22 @@ class SnakeGame:
         
         self.head = Point(self.w/2, self.h/2)
         self.snake = [self.head, 
-                      Point(self.head.x-BLOCK_SIZE, self.head.y),
-                      Point(self.head.x-(2*BLOCK_SIZE), self.head.y)]
+                      Point(self.head.x-BS, self.head.y),
+                      Point(self.head.x-(2*BS), self.head.y)]
         
         self.score = 0
-        self.snack = None
-        self.place_snack()
+        self.food = None
+        self._place_food()
         
-    def place_snack(self):
-        x = random.randint(0, (self.w-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE 
-        y = random.randint(0, (self.h-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE
-        self.snack = Point(x, y)
-        if self.snack in self.snake:
-            self.place_snack()
+    def _place_food(self):
+        x = random.randint(0, (self.w-BS )//BS )*BS 
+        y = random.randint(0, (self.h-BS )//BS )*BS
+        self.food = Point(x, y)
+        if self.food in self.snake:
+            self._place_food()
         
     def play_step(self):
-        # User Controls for Snake movement
+        # 1. collect user input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -70,63 +71,63 @@ class SnakeGame:
                 elif event.key == pygame.K_DOWN:
                     self.direction = Direction.DOWN
         
-        # Snake Movement
-        self.move(self.direction) # update the head
+        # 2. move
+        self._move(self.direction) # update the head
         self.snake.insert(0, self.head)
         
-        # End game after collision
+        # 3. check if game over
         game_over = False
-        if self.is_collision():
+        if self._is_collision():
             game_over = True
             return game_over, self.score
             
-        # Place new food after collection + move food if it generates within the snake body
-        if self.head == self.snack:
+        # 4. place new food or just move
+        if self.head == self.food:
             self.score += 1
-            self.place_snack()
+            self._place_food()
         else:
             self.snake.pop()
         
-        # update ui and clock
-        self.update_ui()
+        # 5. update ui and clock
+        self._update_ui()
         self.clock.tick(SPEED)
         # 6. return game over and score
         return game_over, self.score
     
-    def is_collision(self):
-        # Boundary collision controls
-        if self.head.x > self.w - BLOCK_SIZE or self.head.x < 0 or self.head.y > self.h - BLOCK_SIZE or self.head.y < 0:
+    def _is_collision(self):
+        # hits boundary
+        if self.head.x > self.w - BS or self.head.x < 0 or self.head.y > self.h - BS or self.head.y < 0:
             return True
-        # Snake self-collision controls
+        # hits itself
         if self.head in self.snake[1:]:
             return True
         
         return False
         
-    def update_ui(self):
+    def _update_ui(self):
         self.display.fill(BLACK)
-        # Define snake coloration, with lighter blue (BLUE2) inside the snake cubes
-        for pt in self.snake:
-            pygame.draw.rect(self.display, BLUEOUT, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUEIN, pygame.Rect(pt.x+4, pt.y+4, 12, 12))
-        #Define snack color to be solid red    
-        pygame.draw.rect(self.display, RED, pygame.Rect(self.snack.x, self.snack.y, BLOCK_SIZE, BLOCK_SIZE))
         
-        text = score_font.render("Score: " + str(self.score), True, WHITE)
-        self.display.blit(text, [0, 0])
+        for pt in self.snake:
+            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y, BS, BS))
+            pygame.draw.rect(self.display, GREEN, pygame.Rect(pt.x+4, pt.y+4, 12, 12))
+            
+        pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BS, BS))
+        
+        text = font.render("Score: " + str(self.score), True, WHITE)
+        self.display.blit(text, [290, 0])
         pygame.display.flip()
         
-    def move(self, direction):
+    def _move(self, direction):
         x = self.head.x
         y = self.head.y
         if direction == Direction.RIGHT:
-            x += BLOCK_SIZE
+            x += BS
         elif direction == Direction.LEFT:
-            x -= BLOCK_SIZE
+            x -= BS
         elif direction == Direction.DOWN:
-            y += BLOCK_SIZE
+            y += BS
         elif direction == Direction.UP:
-            y -= BLOCK_SIZE
+            y -= BS
             
         self.head = Point(x, y)
             
@@ -141,7 +142,10 @@ if __name__ == '__main__':
         if game_over == True:
             break
         
-    print('Final Score', score)
+    if score < 10:
+        print('You can do better! Your final score is', score)
+    if score >= 10:
+        print('Congratulations! Your final score is', score)
         
         
     pygame.quit()
