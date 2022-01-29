@@ -1,2 +1,2 @@
 # Building-Snake-In-Python
-This is my attempt to recreate the game snake with python
+This is simply my tweaking of a pre-existing python file for personal practice. Game is fully funcitonal. 
